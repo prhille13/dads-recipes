@@ -1,5 +1,8 @@
 package com.recipes.recipeController;
 
+
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +13,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.recipes.model.Recipe;
 import com.recipes.recipeRepository.RecipeRepository;
+
 
 @Controller
 public class RecipeController {
@@ -25,13 +32,16 @@ public class RecipeController {
 		return "add-recipe";
 	}
 	
-	@PostMapping("/recipes")
-	public String postRecipe(@Valid @ModelAttribute("request") Recipe recipe, BindingResult bindingResult) {
-		if (bindingResult.hasErrors()) {
-			return "add-recipe";
-		}
-		var createdRecipe = repository.save(recipe);
-		return "redirect:/recipes/" + createdRecipe.id;
+	@PostMapping("/add-recipe")
+	public String postAddRecipe(@Valid @ModelAttribute("request") Recipe recipe, BindingResult bindingResult, @RequestParam(value = "addRow", required = false) String addRowBtn) {
+	    if (bindingResult.hasErrors()) {
+	        return "add-recipe";
+	    }
+	    if (addRowBtn != null && addRowBtn.equals("true")) {
+	        recipe.getIngredients().add("");
+	    }
+	    var createdRecipe = repository.save(recipe);
+	    return "redirect:/recipes/" + createdRecipe.getId();
 	}
 	
 	//add GetMapping("/records") for list of all recipes by name, cuisine
@@ -52,6 +62,32 @@ public class RecipeController {
 		model.addAttribute("cookingInstructions", recipe.cookingInstructions);
 		
 		return "recipe";
+	}
+	
+	@PutMapping("/edit-recipe/{id}")
+	public String editRecipe(@PathVariable long id, @RequestBody Recipe recipe) {
+		var updateRecipe = repository.findById(id).get();
+		
+		updateRecipe.setRecipeName(recipe.getRecipeName());
+		updateRecipe.setCookingInstructions(recipe.getCookingInstructions());
+		updateRecipe.setCuisine(recipe.getCuisine());
+		updateRecipe.setIngredients(recipe.getIngredients());
+		updateRecipe.setNumIngredients(recipe.getNumIngredients());
+		
+		repository.save(updateRecipe);
+		
+		return "recipe";
+	}
+	
+
+    
+	@PostMapping(value="/add-recipe", params="removeRowBtn")
+	public String removeRow(
+	        final Recipe recipe, final BindingResult bindingResult, 
+	        final HttpServletRequest req) {
+	    final Integer rowId = Integer.valueOf(req.getParameter("removeRowBtn"));
+	    recipe.getIngredients().remove(rowId.intValue());
+	    return "add-recipe";
 	}
 	
 }

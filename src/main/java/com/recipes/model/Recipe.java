@@ -1,5 +1,8 @@
 package com.recipes.model;
 
+import java.util.ArrayList;
+
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -9,15 +12,18 @@ import javax.validation.constraints.NotEmpty;
 
 @Entity
 public class Recipe {
-    public Recipe(){}
+    public Recipe(){
+    	ingredients = new ArrayList<>();
+    }
     
-    public Recipe(long id, String recipeName, String cuisine, int numIngredients, String ingredients, String cookingInstructions){
+    public Recipe(long id, String recipeName, String cuisine, int numIngredients, ArrayList<String> ingredients, String cookingInstructions){
         this.id = id;
         this.recipeName = recipeName;
         this.cuisine = cuisine;
         this.ingredients = ingredients;
         this.cookingInstructions = cookingInstructions;
         }
+    
    
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -29,10 +35,11 @@ public class Recipe {
     @Min(value=1)
     public int numIngredients;
     @NotEmpty(message="Ingredients cannot be empty.")
-    public String ingredients;
+    public ArrayList<String> ingredients;
     @NotEmpty(message="Cooking instructions cannot be empty.")
-    public String cookingInstructions;
-	
+    public String cookingInstructions;	
+    
+    
     public long getId() {
 		return id;
 	}
@@ -65,11 +72,11 @@ public class Recipe {
 		this.numIngredients = numIngredients;
 	}
 	
-	public String getIngredients() {
+	public @NotEmpty(message = "Ingredients cannot be empty.") ArrayList<String> getIngredients() {
 		return ingredients;
 	}
 
-	public void setIngredients(String ingredients) {
+	public void setIngredients(@NotEmpty(message = "Ingredients cannot be empty.") ArrayList<String> ingredients) {
 		this.ingredients = ingredients;
 	}
 

@@ -1,10 +1,77 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Add a Recipe</title>
+<title>Add a Recipe</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+	integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+	crossorigin="anonymous">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 </head>
-<body>
-	<p>Add form to this page to add recipe to H2 database</p>
+<body class="m-4">
+	<h1>Add a Recipe</h1>
+	<form th:action="@{/add-recipe}" th:object="${request}" method="post">
+		<label for="recipeName">Recipe Name</label> <br> <input
+			type="text" id="recipeName" th:field="*{recipeName}" class="mb-2" />
+		<div class="text-danger mb-1"
+			th:if="${#fields.hasErrors('recipeName')}" th:errors="*{recipeName}"></div>
+		<br>
+		<table id="ingredientTable">
+			<thead>
+				<tr>
+					<th>Ingredients:</th>
+					<th><button type="button" class="btn btn-primary"
+							id="addRowBtn" name="addRowBtn" onClick="addNewRow()">Add
+							Ingredient</button></th>
+				</tr>
+			</thead>
+			<tbody id="ingredientRows">
+				<tr th:each="ingredient : *{ingredients}">
+					<td><input type="text" th:field="*{ingredients}" /></td>
+					
+				</tr>
+			</tbody>
+		</table>
+		<!-- New row template -->
+		<div th:fragment="rowTemplate">
+			<div class="form-group">
+				<label for="ingredients"></label> 
+			</div>
+		</div>
+
+
+		<label for="cuisine">Cuisine</label> <br> <input
+			type="text" id="cuisine" th:field="*{cuisine}" class="mb-2" />
+		<div class="text-danger mb-1" th:if="${#fields.hasErrors('cuisine')}"
+			th:errors="*{cuisine}"></div>
+		<br> <label for="cookingInstructions">Cooking
+			Instructions</label> <br>
+		<textarea rows="10" cols="40" id="cookingInstructions"
+			th:field="*{cookingInstructions}" class="mb-2"></textarea>
+		<div class="text-danger mb-1"
+			th:if="${#fields.hasErrors('cookingInstructions')}"
+			th:errors="*{cookingInstructions}"></div>
+		<br>
+		<button type="button" class="btn btn-success" onClick="submitForm()">Submit</button>
+	</form>
+	<script>
+        $(document).ready(function() {
+            // Event listener for the addRowBtn click event
+            $('#addRowBtn').click(function() {
+                var newRow = '<tr>' +
+                                '<td><input type="text" name="ingredients" required/></td>' +
+                                '<td><button type="button" class="btn btn-danger removeRowBtn">Remove</button></td>' +
+                             '</tr>';
+                $('#ingredientRows').append(newRow);
+            });
+
+            // Event listener for the removeRowBtn click event
+            $(document).on('click', '.removeRowBtn', function() {
+                $(this).closest('tr').remove();
+            });
+        });
+    </script>
 </body>
 </html>
